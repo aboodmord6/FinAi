@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="overflow-auto">
+        <div class="container mx-auto mt-4 flex flex-col h-full px-4">
+        <!-- Welcome Section -->
+            <div class="mb-6">
+                <div class="card bg-gradient-to-r from-primary to-secondary text-primary-content shadow-xl">
+                    <div class="card-body p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-3xl font-bold mb-2">Welcome back, {{ request.user.first_name|default:"User" }}!</h2>
+                                <p class="opacity-75">Here's your financial overview for today</p>
+                            </div>
+                            <div class="hidden md:block">
+                                <i class="bi bi-graph-up-arrow text-6xl opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Bank Accounts Section -->
+            <div class="mb-6">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-header flex justify-between items-center p-4 border-b border-base-300">
+                        <h5 class="text-xl font-semibold flex items-center gap-2">
+                            <i class="bi bi-bank"></i>
+                            Your Bank Accounts
+                        </h5>
+                        <button class="btn btn-outline btn-sm">
+                            <i class="bi bi-plus-circle"></i>
+                            Link Account
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="overflow-x-auto">
+                            <div class="flex gap-4 pb-4">
+                                {% for account in accounts %}
+                                    <div
+                                        class="card bg-base-200 w-80 flex-shrink-0 shadow-md hover:shadow-lg transition-shadow">
+                                        <div class="card-body">
+                                            <div class="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h6 class="card-title text-lg">{{ account.financial_institution.name }}</h6>
+                                                    <p class="text-sm text-base-content/70">{{ account.product.commercial_name|default:"N/A" }}</p>
+                                                </div>
+                                                <div class="badge
+                                                            {% if account.account_status == 'active' %}badge-success
+                                                            {% elif account.account_status == 'inactive' %}badge-warning
+                                                            {% else %}badge-error{% endif %}">
+                                                    {{ account.account_status|capfirst }}
+                                                </div>
+                                            </div>
+                                            <div class="mb-4">
+                                                <h4 class="text-2xl font-bold">{{ account.account_currency }} {{ account.available_balance|default:"0.00" }}</h4>
+                                                <p class="text-sm text-base-content/60">****-****-{{ account.account_id|slice:"-4:" }}</p>
+                                            </div>
+                                            <div class="card-actions">
+                                                <button class="btn btn-outline btn-sm">View Details</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <div class="w-full text-center py-12">
+                                        <div class="flex flex-col items-center gap-4">
+                                            <i class="bi bi-bank text-4xl text-base-content/30"></i>
+                                            <p class="text-base-content/70">You don't have any linked accounts yet.</p>
+                                            <button class="btn btn-primary">
+                                                <i class="bi bi-plus-circle"></i>
+                                                Link Your First Account
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Quick AI Assistant Section -->
+            <div class="mb-6">
+                <div class="card bg-base-100 shadow-xl text-center">
+                    <div class="card-body p-6">
+                        <i class="bi bi-robot text-6xl text-primary mb-4"></i>
+                        <h5 class="card-title text-xl justify-center">Need some help?</h5>
+                        <p class="text-base-content/70 mb-4">
+                            Our AI assistant is here to help you with any financial questions you have.
+                        </p>
+                        <div class="card-actions justify-center">
+                            <a href="{% url 'chat' %}" class="btn btn-primary">
+                                <i class="bi bi-chat-dots"></i>
+                                Start a Conversation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

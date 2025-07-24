@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Login - Secure Access{% endblock %}
+{% block content %}
+<div class="w-full max-w-md mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="mb-4">
+            <div class="w-16 h-16 mx-auto bg-primary rounded-full flex items-center justify-center mb-4">
+                <i class="bi bi-shield-lock text-2xl text-primary-content"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-base-content">Welcome Back</h1>
+            <p class="text-base-content/70 mt-2">Sign in to your account to continue</p>
+        </div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="card bg-base-100 shadow-2xl border border-base-300">
+        <div class="card-body p-8">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mb-6 animate-pulse">
+                <i
+                    class="bi bi-{% if message.tags == 'error' %}exclamation-triangle{% else %}check-circle{% endif %}"></i>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'Auth:login' %}" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Username Field -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">
+                            <i class="bi bi-person mr-2"></i>Username
+                        </span>
+                    </label>
+                    <input type="text" name="{{ form.username.name }}" id="username"
+                        class="input input-bordered input-lg w-full focus:input-primary transition-all duration-300 {% if form.username.errors %}input-error{% endif %}"
+                        placeholder="Enter your username" value="{{ form.username.value|default:'' }}" required />
+                    {% if form.username.errors %}
+                    <label class="label">
+                        <span class="label-text-alt text-error">
+                            <i class="bi bi-exclamation-circle mr-1"></i>{{ form.username.errors.0 }}
+                        </span>
+                    </label>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">
+                            <i class="bi bi-lock mr-2"></i>Password
+                        </span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" name="{{ form.password.name }}" id="password"
+                            class="input input-bordered input-lg w-full pr-12 focus:input-primary transition-all duration-300 {% if form.password.errors %}input-error{% endif %}"
+                            placeholder="Enter your password" required />
+                        <button type="button"
+                            class="btn btn-ghost btn-sm absolute right-1 top-1/2 -translate-y-1/2 hover:bg-base-200"
+                            onclick="togglePassword('password', this)">
+                            <i class="bi bi-eye" id="passwordIcon"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                    <label class="label">
+                        <span class="label-text-alt text-error">
+                            <i class="bi bi-exclamation-circle mr-1"></i>{{ form.password.errors.0 }}
+                        </span>
+                    </label>
+                    {% endif %}
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex justify-between items-center">
+                    <label class="label cursor-pointer">
+                        <input type="checkbox" class="checkbox checkbox-primary checkbox-sm mr-2" />
+                        <span class="label-text">Remember me</span>
+                    </label>
+                    <a href="#" class="link link-primary text-sm hover:link-hover">Forgot password?</a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit"
+                    class="btn btn-primary btn-lg w-full text-lg font-semibold hover:scale-[1.02] transition-transform duration-200">
+                    <i class="bi bi-box-arrow-in-right mr-2"></i>
+                    Sign In
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider my-6">or</div>
+
+            <!-- Link Login -->
+            <div class="space-y-3">
+                <button class="btn btn-outline btn-lg w-full hover:scale-[1.02] transition-transform duration-200">
+                    <i class="bi bi-bank mr-2"></i>
+                    Continue with Bank Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign Up Link -->
+    <div class="text-center mt-6">
+        <p class="text-base-content/70">
+            Don't have an account?
+            <a href="{% url 'Auth:signup' %}" class="link link-primary font-semibold hover:link-hover">
+                Create one here
+            </a>
+        </p>
+    </div>
+
+    <!-- Security Notice -->
+    <div class="text-center mt-4">
+        <p class="text-xs text-base-content/50">
+            <i class="bi bi-shield-check mr-1"></i>
+            Your connection is secured with 256-bit SSL encryption
+        </p>
+    </div>
+</div>
+
+<script>
+    function togglePassword(fieldId, button) {
+        const field = document.getElementById(fieldId);
+        const icon = button.querySelector('i');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            field.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    }
+
+    // Add loading state on form submit
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+    });
+
+    // Auto-focus username field
+    document.getElementById('username').focus();
+</script>
+{% endblock %}

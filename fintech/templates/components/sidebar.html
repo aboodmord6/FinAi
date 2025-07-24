@@ -1,0 +1,114 @@
+{% load static %}
+<nav id="sidebar"
+    class="fixed top-0 left-0 w-64 h-screen bg-base-300 z-[1000] transition-transform duration-300 lg:translate-x-0 -translate-x-full overflow-y-auto">
+    <div class="flex flex-col h-full p-4">
+        <!-- Project Header -->
+        <div class="flex flex-col items-center justify-center mb-6 pb-4 border-b border-base-content/10">
+            <img src="{% static 'Logo/logowithtext.svg' %}" alt="FinAi Logo" class="h-8 w-auto mb-2">
+            <div class="text-center">
+                <p class="text-sm text-base-content/60 mt-1">Financial Assistant Platform</p>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <ul class="menu flex-1 space-y-1">
+            <li>
+                <a href="{% url 'index' %}"
+                    class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'chat' %}" class="{% if request.resolver_match.url_name == 'chat' %}active{% endif %}">
+                    <i class="bi bi-robot"></i>
+                    AI Assistant
+                </a>
+            </li>
+
+            <!-- Features Section -->
+            <li class="menu-title mt-4">
+                <span>Features</span>
+            </li>
+            <li>
+                <a href="{% url 'banks' %}"
+                    class="{% if request.resolver_match.url_name == 'banks' %}active{% endif %}">
+                    <i class="bi bi-bank"></i>
+                    Banks
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'products' %}"
+                    class="{% if request.resolver_match.url_name == 'products' %}active{% endif %}">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    Products
+                </a>
+            </li>
+            <li>
+                <a href="#" class="">
+                    <i class="bi bi-cash-coin"></i>
+                    Loans & Deposits
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'foreign_exchange' %}"
+                    class="{% if request.resolver_match.url_name == 'foreign_exchange' %}active{% endif %}">
+                    <i class="bi bi-currency-exchange"></i>
+                    Foreign Exchange
+                </a>
+            </li>
+
+            <div class="divider"></div>
+
+            <li>
+                <a href="{% url 'about' %}"
+                    class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+                    <i class="bi bi-info-circle"></i>
+                    About
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'news' %}" class="{% if request.resolver_match.url_name == 'news' %}active{% endif %}">
+                    <i class="bi bi-newspaper"></i>
+                    News & Insights
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'testimonials' %}"
+                    class="{% if request.resolver_match.url_name == 'testimonials' %}active{% endif %}">
+                    <i class="bi bi-chat-quote"></i>
+                    Testimonials
+                </a>
+            </li>
+        </ul>
+
+        <!-- Theme Toggle Section -->
+        <div class="divider"></div>
+        <div class="flex items-center justify-between p-2 rounded-lg bg-base-200/50 mb-2">
+            <div class="flex items-center gap-2">
+                <i class="bi bi-palette text-base-content/60"></i>
+                <span class="text-sm font-medium text-base-content">Theme</span>
+            </div>
+            <label class="swap swap-rotate">
+                <input type="checkbox" id="themeToggle" class="theme-controller" />
+                <i class="bi bi-sun-fill swap-off text-base-content"></i>
+                <i class="bi bi-moon-fill swap-on text-base-content"></i>
+            </label>
+        </div>
+
+        <!-- User Account Dropdown -->
+        <div class="dropdown dropdown-top">
+            <div tabindex="0" role="button" class="btn btn-ghost justify-start w-full">
+                <i class="bi bi-person-circle"></i>
+                Account
+                <i class="bi bi-chevron-up ml-auto"></i>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow mb-2">
+                <li><a href="{% url 'Auth:logout' %}">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </a></li>
+            </ul>
+        </div>
+    </div>
+</nav>

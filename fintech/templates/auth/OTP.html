@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}OTP Verification{% endblock %}
+{% block content %}
+    <div class="flex justify-center items-center p-4">
+        <div class="card w-full max-w-md bg-base-100 shadow-xl">
+            <div class="card-body text-center">
+                <h1 class="card-title text-2xl font-bold mb-6">OTP Verification</h1>
+
+                <div class="alert alert-info mb-6">
+                    <i class="bi bi-info-circle"></i>
+                    <span>OTP verification will be implemented soon.</span>
+                </div>
+
+                <a href="{% url 'Auth:login' %}" class="btn btn-primary">
+                    Back to Login
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

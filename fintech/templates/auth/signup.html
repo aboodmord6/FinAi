@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% block title %}Create Account - Join Us{% endblock %}
+{% block content %}
+<div class="w-full max-w-2xl mx-auto my-8">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="mb-4">
+            <div class="w-16 h-16 mx-auto bg-secondary rounded-full flex items-center justify-center mb-4">
+                <i class="bi bi-person-plus text-2xl text-secondary-content"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-base-content">Create Your Account</h1>
+            <p class="text-base-content/70 mt-2">Join thousands of users managing their finances securely</p>
+        </div>
+    </div>
+
+
+
+    <!-- Signup Card -->
+    <div class="card bg-base-100 shadow-2xl border border-base-300">
+        <div class="card-body p-8">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mb-6 animate-pulse">
+                <i
+                    class="bi bi-{% if message.tags == 'error' %}exclamation-triangle{% else %}check-circle{% endif %}"></i>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'Auth:signup' %}" class="space-y-6" id="signupForm">
+                {% csrf_token %}
+
+                <!-- Personal Information -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold flex items-center">
+                        <i class="bi bi-person-badge mr-2"></i>
+                        Personal Information
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- First Name -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">First Name *</span>
+                            </label>
+                            <input type="text" name="{{ form.first_name.name }}" id="firstName"
+                                class="input input-bordered input-lg w-full focus:input-secondary transition-all duration-300 {% if form.first_name.errors %}input-error{% endif %}"
+                                placeholder="Enter your first name" value="{{ form.first_name.value|default:'' }}"
+                                required />
+                            {% if form.first_name.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">
+                                    <i class="bi bi-exclamation-circle mr-1"></i>{{ form.first_name.errors.0 }}
+                                </span>
+                            </label>
+                            {% endif %}
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">Last Name *</span>
+                            </label>
+                            <input type="text" name="{{ form.last_name.name }}" id="lastName"
+                                class="input input-bordered input-lg w-full focus:input-secondary transition-all duration-300 {% if form.last_name.errors %}input-error{% endif %}"
+                                placeholder="Enter your last name" value="{{ form.last_name.value|default:'' }}"
+                                required />
+                            {% if form.last_name.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">
+                                    <i class="bi bi-exclamation-circle mr-1"></i>{{ form.last_name.errors.0 }}
+                                </span>
+                            </label>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Details -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold flex items-center">
+                        <i class="bi bi-gear mr-2"></i>
+                        Account Details
+                    </h3>
+
+                    <!-- Username -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">
+                                <i class="bi bi-at mr-1"></i>Username *
+                            </span>
+                            <span class="label-text-alt" id="usernameStatus"></span>
+                        </label>
+                        <input type="text" name="{{ form.username.name }}" id="username"
+                            class="input input-bordered input-lg w-full focus:input-secondary transition-all duration-300 {% if form.username.errors %}input-error{% endif %}"
+                            placeholder="Choose a unique username" value="{{ form.username.value|default:'' }}"
+                            required />
+                        {% if form.username.errors %}
+                        <label class="label">
+                            <span class="label-text-alt text-error">
+                                <i class="bi bi-exclamation-circle mr-1"></i>{{ form.username.errors.0 }}
+                            </span>
+                        </label>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">
+                                <i class="bi bi-envelope mr-1"></i>Email Address *
+                            </span>
+                        </label>
+                        <input type="email" name="{{ form.email.name }}" id="email"
+                            class="input input-bordered input-lg w-full focus:input-secondary transition-all duration-300 {% if form.email.errors %}input-error{% endif %}"
+                            placeholder="name@example.com" value="{{ form.email.value|default:'' }}" required />
+                        {% if form.email.errors %}
+                        <label class="label">
+                            <span class="label-text-alt text-error">
+                                <i class="bi bi-exclamation-circle mr-1"></i>{{ form.email.errors.0 }}
+                            </span>
+                        </label>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold flex items-center">
+                        <i class="bi bi-shield-lock mr-2"></i>
+                        Security
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Password -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">Password *</span>
+                            </label>
+                            <div class="relative">
+                                <input type="password" name="{{ form.password1.name }}" id="password"
+                                    class="input input-bordered input-lg w-full pr-12 focus:input-secondary transition-all duration-300 {% if form.password1.errors %}input-error{% endif %}"
+                                    placeholder="Create a strong password" required />
+                                <button type="button"
+                                    class="btn btn-ghost btn-sm absolute right-1 top-1/2 -translate-y-1/2 hover:bg-base-200"
+                                    onclick="togglePassword('password', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+
+                            {% if form.password1.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">
+                                    <i class="bi bi-exclamation-circle mr-1"></i>{{ form.password1.errors.0 }}
+                                </span>
+                            </label>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">Confirm Password *</span>
+                            </label>
+                            <div class="relative">
+                                <input type="password" name="{{ form.password2.name }}" id="confirmPassword"
+                                    class="input input-bordered input-lg w-full pr-12 focus:input-secondary transition-all duration-300 {% if form.password2.errors %}input-error{% endif %}"
+                                    placeholder="Confirm your password" required />
+                                <button type="button"
+                                    class="btn btn-ghost btn-sm absolute right-1 top-1/2 -translate-y-1/2 hover:bg-base-200"
+                                    onclick="togglePassword('confirmPassword', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div id="passwordMatchMsg" class="text-error text-sm mt-1 hidden flex items-center">
+                                <i class="bi bi-exclamation-triangle mr-1"></i>
+                                Passwords do not match
+                            </div>
+                            {% if form.password2.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">
+                                    <i class="bi bi-exclamation-circle mr-1"></i>{{ form.password2.errors.0 }}
+                                </span>
+                            </label>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3">
+                        <input type="checkbox" class="checkbox checkbox-secondary" id="agreeTerms" required />
+                        <span class="label-text">
+                            I agree to the
+                            <a href="#" class="link link-secondary">Terms of Service</a>
+                            and
+                            <a href="#" class="link link-secondary">Privacy Policy</a>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit"
+                    class="btn btn-secondary btn-lg w-full text-lg font-semibold hover:scale-[1.02] transition-transform duration-200"
+                    id="submitBtn" disabled>
+                    <i class="bi bi-person-plus mr-2"></i>
+                    Create Account
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider my-6">or</div>
+
+            <!-- Social Signup -->
+            <div class="space-y-3">
+                <button class="btn btn-outline btn-lg w-full hover:scale-[1.02] transition-transform duration-200">
+                    <i class="bi bi-bank mr-2"></i>
+                    Continue with Bank Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Link -->
+    <div class="text-center mt-6">
+        <p class="text-base-content/70">
+            Already have an account?
+            <a href="{% url 'Auth:login' %}" class="link link-secondary font-semibold hover:link-hover">
+                Sign in here
+            </a>
+        </p>
+    </div>
+
+    <!-- Security Notice -->
+    <div class="text-center mt-4">
+        <p class="text-xs text-base-content/50">
+            <i class="bi bi-shield-check mr-1"></i>
+            Your data is protected with enterprise-grade security
+        </p>
+    </div>
+</div>
+
+<script>
+    function togglePassword(fieldId, button) {
+        const field = document.getElementById(fieldId);
+        const icon = button.querySelector('i');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            field.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    }
+
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        const indicators = [
+            document.getElementById('strength1'),
+            document.getElementById('strength2'),
+            document.getElementById('strength3'),
+            document.getElementById('strength4')
+        ];
+        const strengthText = document.getElementById('strengthText');
+
+        // Reset
+        indicators.forEach(ind => {
+            ind.className = 'h-1 flex-1 bg-base-300 rounded';
+        });
+
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+        if (/\d/.test(password)) strength++;
+        if (/[^a-zA-Z\d]/.test(password)) strength++;
+
+        const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500'];
+        const texts = ['Very Weak', 'Weak', 'Fair', 'Strong'];
+
+        for (let i = 0; i < strength; i++) {
+            indicators[i].className = `h-1 flex-1 ${colors[strength - 1]} rounded`;
+        }
+
+        strengthText.textContent = password.length > 0 ? texts[strength - 1] || 'Very Weak' : 'Password strength';
+    }
+
+    function validateForm() {
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const agreeTerms = document.getElementById('agreeTerms').checked;
+        const submitBtn = document.getElementById('submitBtn');
+        const matchMsg = document.getElementById('passwordMatchMsg');
+
+        const allFilled = firstName && lastName && username && email && password && confirmPassword;
+        const passwordsMatch = password === confirmPassword;
+
+        if (confirmPassword && !passwordsMatch) {
+            matchMsg.classList.remove('hidden');
+        } else {
+            matchMsg.classList.add('hidden');
+        }
+
+        submitBtn.disabled = !(allFilled && passwordsMatch && agreeTerms);
+    }
+
+    // Event listeners
+    document.getElementById('password').addEventListener('input', function () {
+        checkPasswordStrength(this.value);
+        validateForm();
+    });
+
+    ['firstName', 'lastName', 'username', 'email', 'confirmPassword'].forEach(id => {
+        document.getElementById(id).addEventListener('input', validateForm);
+    });
+
+    document.getElementById('agreeTerms').addEventListener('change', validateForm);
+
+    // Username availability check (simulated)
+    document.getElementById('username').addEventListener('blur', function () {
+        const status = document.getElementById('usernameStatus');
+        if (this.value.length >= 3) {
+            status.innerHTML = '<span class="text-success"><i class="bi bi-check-circle mr-1"></i>Available</span>';
+        }
+    });
+
+    // Form submission
+    document.getElementById('signupForm').addEventListener('submit', function (e) {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+    });
+
+    // Auto-focus first name field
+    document.getElementById('firstName').focus();
+</script>
+{% endblock %}

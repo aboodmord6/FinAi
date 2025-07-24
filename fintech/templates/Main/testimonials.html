@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Testimonials{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <div class="text-center mb-12">
+        <img src="{% static 'Logo/logowithtext.svg' %}" alt="FinAi Logo" class="h-16 w-auto mx-auto mb-6">
+        <h1 class="text-4xl font-bold mb-4">What Our Users Say</h1>
+        <p class="text-lg text-base-content/70 max-w-2xl mx-auto">
+            Discover how FinAi is helping individuals and businesses manage their finances with confidence
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <!-- Sample testimonial cards -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex items-center mb-4">
+                    <div class="avatar placeholder">
+                        <div class="bg-primary text-primary-content rounded-full w-12">
+                            <span class="text-xl">A</span>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="font-semibold">Ahmed M.</h3>
+                        <p class="text-sm text-base-content/60">Business Owner</p>
+                    </div>
+                </div>
+                <p class="text-base-content/80 italic">
+                    "FinAi has revolutionized how I manage my business finances. The AI assistant is incredibly
+                    helpful."
+                </p>
+                <div class="rating rating-sm mt-4">
+                    <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" checked />
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex items-center mb-4">
+                    <div class="avatar placeholder">
+                        <div class="bg-secondary text-secondary-content rounded-full w-12">
+                            <span class="text-xl">S</span>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="font-semibold">Sarah K.</h3>
+                        <p class="text-sm text-base-content/60">Financial Analyst</p>
+                    </div>
+                </div>
+                <p class="text-base-content/80 italic">
+                    "The foreign exchange features are outstanding. Real-time rates and easy conversions make my job
+                    easier."
+                </p>
+                <div class="rating rating-sm mt-4">
+                    <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" checked />
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex items-center mb-4">
+                    <div class="avatar placeholder">
+                        <div class="bg-accent text-accent-content rounded-full w-12">
+                            <span class="text-xl">M</span>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="font-semibold">Mohammed R.</h3>
+                        <p class="text-sm text-base-content/60">Entrepreneur</p>
+                    </div>
+                </div>
+                <p class="text-base-content/80 italic">
+                    "Having all my banking information in one place with intelligent insights is a game-changer."
+                </p>
+                <div class="rating rating-sm mt-4">
+                    <input type="radio" name="rating-3" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-3" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-3" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-3" class="mask mask-star-2 bg-orange-400" checked />
+                    <input type="radio" name="rating-3" class="mask mask-star-2 bg-orange-400" checked />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to action -->
+    <div class="card bg-gradient-to-r from-primary to-secondary text-primary-content shadow-xl">
+        <div class="card-body text-center">
+            <h2 class="card-title justify-center text-2xl mb-4">Join Thousands of Satisfied Users</h2>
+            <p class="mb-6">Experience the future of financial management with MCS</p>
+            <div class="card-actions justify-center">
+                <a href="{% url 'Auth:signup' %}" class="btn btn-neutral">Get Started Today</a>
+                <a href="{% url 'chat' %}" class="btn btn-outline btn-neutral">Try AI Assistant</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note -->
+    <div class="alert alert-info mt-8">
+        <i class="bi bi-info-circle"></i>
+        <span>These are sample testimonials. Real user feedback will be displayed here as we grow our user base.</span>
+    </div>
+</div>
+{% endblock %}

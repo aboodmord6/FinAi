@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Banks{% endblock %}
+
+{% block content %}
+<style>
+    /* Theme-aware error placeholder styling */
+    .bank-error-placeholder {
+        background: hsl(var(--b2)) !important;
+        color: hsl(var(--bc) / 0.4) !important;
+    }
+</style>
+<div class="container mx-auto overflow-auto p-4">
+    <h1 class="text-center text-4xl font-bold mb-8">Financial Institutions</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for bank in banks %}
+        <a href="#"
+            class="group relative block bg-base-100 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 ease-out hover:-translate-y-3 border border-base-300">
+            <!-- Background Logo Image -->
+            <div class="absolute inset-0 overflow-hidden">
+                <!-- Default background pattern for banks without images -->
+                <div class="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 opacity-50"></div>
+                <!-- Bottom-to-Top Gradient for text readability -->
+                <div class="absolute inset-0 bg-gradient-to-t from-base-100/95 via-base-100/70 to-transparent"></div>
+            </div>
+
+            <!-- Content + Logo Wrapper -->
+            <div class="relative flex flex-col h-80 justify-end">
+                <!-- Content Area (bottom-left) -->
+                <div class="p-6 pt-10 w-full max-w-full">
+                    <div class="space-y-2 text-left max-w-xs">
+                        {% if bank.InstitutionType %}
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                            {{ bank.InstitutionType }}
+                        </span>
+                        {% endif %}
+                        <h5 class="text-xl font-bold text-base-content">{{ bank.name }}</h5>
+                        {% if bank.address %}
+                        <p class="text-sm text-base-content/70 flex items-center gap-1"><i
+                                class="bi bi-geo-alt text-primary"></i>{{ bank.address.area }}, {{ bank.address.city }}
+                        </p>
+                        {% endif %}
+                        {% if bank.website_url %}
+                        <p class="text-sm text-base-content/70 flex items-center gap-1"><i
+                                class="bi bi-globe text-primary"></i><span class="truncate">
+                                {{ bank.website_url|slice:"8:35" }}{% if bank.website_url|length > 35 %}...
+
+                                {% endif%}</span>
+                        </p>
+                        {% endif %}
+                        {% if bank.contact_phone %}
+                        <p class="text-sm text-base-content/70 flex items-center gap-1"><i
+                                class="bi bi-telephone text-primary"></i>{{ bank.contact_phone }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Logo at very bottom -->
+                <div class="h-24 flex items-center justify-center px-6 pb-6">
+                    <div class="card bg-white shadow-md rounded-lg p-3 w-full h-full flex items-center justify-center">
+                        <img alt="{{ bank.name }} Logo" src="{% static 'images/' %}{{ bank.name }}.jpeg"
+                            class="max-h-full max-w-full object-contain transition-all duration-300 group-hover:scale-105 bank-logo"
+                            data-bank-name="{{ bank.name }}" />
+                    </div>
+                </div>
+
+                <!-- Bank ID -->
+                <div class="absolute top-4 right-4">
+                    <span class="text-xs text-base-content/50 font-mono bg-base-200 px-2 py-1 rounded">
+                        #{{ bank.id }}
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="col-span-full">
+            <div class="alert alert-info shadow-lg">
+                <div class="flex flex-col items-center text-center">
+                    <i class="bi bi-bank text-4xl mb-4"></i>
+                    <h4 class="text-xl font-bold">No financial institutions found</h4>
+                    <p>Please add some financial institutions to the database.</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Enhanced image loading with automatic fallback
+    document.addEventListener('DOMContentLoaded', function () {
+        const bankLogos = document.querySelectorAll('.bank-logo');
+
+        bankLogos.forEach(img => {
+            let attempts = 0;
+            const extensions = ['jpeg', 'jpg', 'png'];
+            const bankName = img.dataset.bankName;
+
+            function tryNextExtension() {
+                if (attempts < extensions.length) {
+                    const extension = extensions[attempts];
+                    img.src = `{% static 'images/' %}${bankName}.${extension}`;
+                    attempts++;
+                } else {
+                    // Show fallback icon
+                    img.parentElement.innerHTML = `
+                        <div class="w-full h-full bg-white flex items-center justify-center">
+                            <i class="bi bi-bank text-gray-400 text-4xl"></i>
+                        </div>
+                    `;
+                }
+            }
+
+            img.addEventListener('error', tryNextExtension);
+        });
+    });
+</script>
+{% endblock %}

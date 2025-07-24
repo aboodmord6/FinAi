@@ -1,0 +1,1191 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Financial Assistant{% endblock %}
+
+{% block content %}
+<style>
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+        /* Chrome, Safari, Opera */
+    }
+
+    /* Smooth scroll behavior for suggestion slider */
+    #suggestionSlider {
+        scroll-behavior: smooth;
+    }
+
+    /* Button hover effects for suggestions */
+    #suggestionButtons .btn {
+        transition: all 0.2s ease;
+        border: 1px solid;
+        min-width: max-content;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    #suggestionButtons .btn:hover,
+    #suggestionButtons .btn:focus {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Mobile touch support */
+    @media (max-width: 768px) {
+        #suggestionButtons .btn {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+        }
+
+        #suggestionSlider {
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+
+    /* Responsive design for chat input area */
+    @media (max-width: 640px) {
+        .chat-input-container {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .chat-input-container .input {
+            min-width: 0;
+        }
+    }
+
+    /* Markdown styling for chat messages */
+    .markdown-content {
+        line-height: 1.6;
+    }
+
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3,
+    .markdown-content h4,
+    .markdown-content h5,
+    .markdown-content h6 {
+        font-weight: bold;
+        margin: 0.5em 0 0.3em 0;
+    }
+
+    .markdown-content h1 {
+        font-size: 1.5em;
+    }
+
+    .markdown-content h2 {
+        font-size: 1.3em;
+    }
+
+    .markdown-content h3 {
+        font-size: 1.1em;
+    }
+
+    .markdown-content p {
+        margin: 0.5em 0;
+    }
+
+    .markdown-content ul,
+    .markdown-content ol {
+        margin: 0.5em 0;
+        padding-left: 1.5em;
+    }
+
+    .markdown-content li {
+        margin: 0.2em 0;
+    }
+
+    .markdown-content blockquote {
+        border-left: 3px solid hsl(var(--bc) / 0.4);
+        padding-left: 1em;
+        margin: 0.5em 0;
+        font-style: italic;
+        opacity: 0.8;
+    }
+
+    .markdown-content code {
+        background-color: hsl(var(--b3));
+        color: hsl(var(--bc));
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+    }
+
+    .markdown-content pre {
+        background-color: hsl(var(--b3));
+        color: hsl(var(--bc));
+        padding: 1em;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 0.5em 0;
+    }
+
+    .markdown-content pre code {
+        background-color: transparent;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    .markdown-content table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0.8em 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px hsl(var(--bc) / 0.1);
+        background: hsl(var(--b1));
+    }
+
+    .markdown-content th,
+    .markdown-content td {
+        border: 1px solid hsl(var(--bc) / 0.15);
+        padding: 0.75em 1em;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .markdown-content th {
+        background: linear-gradient(135deg, hsl(var(--b3)) 0%, hsl(var(--b2)) 100%);
+        font-weight: 600;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: hsl(var(--bc) / 0.8);
+        border-bottom: 2px solid hsl(var(--p) / 0.3);
+    }
+
+    .markdown-content tbody tr:nth-child(even) {
+        background-color: hsl(var(--b2) / 0.3);
+    }
+
+    .markdown-content tbody tr:hover {
+        background-color: hsl(var(--b3) / 0.5);
+        transition: background-color 0.2s ease;
+    }
+
+    /* Financial data specific styling */
+    .markdown-content td:has(strong),
+    .markdown-content td strong {
+        color: hsl(var(--s));
+        font-weight: 600;
+    }
+
+    /* Number alignment for financial data */
+    .markdown-content td:nth-child(n+2) {
+        text-align: right;
+    }
+
+    .markdown-content th:nth-child(n+2) {
+        text-align: right;
+    }
+
+    /* Table container for horizontal scroll */
+    .markdown-content .table-container {
+        overflow-x: auto;
+        margin: 0.8em 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px hsl(var(--bc) / 0.1);
+    }
+
+    .markdown-content a {
+        color: hsl(var(--p));
+        text-decoration: underline;
+    }
+
+    .markdown-content a:hover {
+        color: hsl(var(--pf));
+    }
+
+    .markdown-content strong {
+        font-weight: bold;
+    }
+
+    .markdown-content em {
+        font-style: italic;
+    }
+
+    /* Mobile responsiveness for markdown content */
+    @media (max-width: 768px) {
+        .markdown-content pre {
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .markdown-content table {
+            font-size: 0.75em;
+            min-width: 100%;
+        }
+
+        .markdown-content th,
+        .markdown-content td {
+            padding: 0.5em 0.75em;
+            word-break: break-word;
+        }
+
+        .markdown-content th {
+            font-size: 0.8em;
+            letter-spacing: 0.3px;
+        }
+
+        .markdown-content .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0.5em -1rem;
+            padding: 0 1rem;
+        }
+
+        .markdown-content h1 {
+            font-size: 1.3em;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.2em;
+        }
+
+        .markdown-content h3 {
+            font-size: 1.1em;
+        }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 480px) {
+        .markdown-content table {
+            font-size: 0.7em;
+        }
+
+        .markdown-content th,
+        .markdown-content td {
+            padding: 0.4em 0.5em;
+        }
+
+        .markdown-content .table-container {
+            margin: 0.5em -0.5rem;
+            padding: 0 0.5rem;
+        }
+    }
+
+    /* Animation classes */
+    .message-appear {
+        animation: messageAppear 0.4s ease-out;
+    }
+
+    @keyframes messageAppear {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Enhanced bot message interactions */
+    .prose.markdown-content {
+        transition: all 0.2s ease;
+        cursor: default;
+        user-select: text;
+        line-height: 1.7;
+        font-size: 14px;
+    }
+
+
+
+    /* Glassmorphism chat bubble styles */
+    .bot-message-container {
+        width: fit-content;
+        padding-right: 8rem;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        border: 1px solid hsl(var(--bc) / 0.1);
+        background: hsl(var(--b2) / 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px hsl(var(--bc) / 0.1);
+    }
+
+    .bot-message-container:hover {
+        background: hsl(var(--b3) / 0.9);
+        border-color: hsl(var(--bc) / 0.2);
+        box-shadow: 0 12px 40px hsl(var(--bc) / 0.15);
+        transform: translateY(-2px);
+    }
+
+    /* User messages with glassmorphism */
+    .chat-end {
+        margin-bottom: 1.5rem;
+    }
+
+    .chat-end .chat-bubble {
+        max-width: 70%;
+        border-radius: 18px;
+        background: hsl(var(--p) / 0.8) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid hsl(var(--p) / 0.3) !important;
+        box-shadow: 0 8px 32px hsl(var(--bc) / 0.1) !important;
+        color: hsl(var(--pc)) !important;
+    }
+
+    .chat-end .chat-bubble:hover {
+        background: hsl(var(--p) / 0.9) !important;
+        border-color: hsl(var(--p) / 0.5) !important;
+        box-shadow: 0 12px 40px hsl(var(--bc) / 0.15) !important;
+        transform: translateY(-2px);
+    }
+
+    /* Error messages glassmorphism */
+    .chat-bubble-error {
+        background: hsl(var(--er) / 0.15) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid hsl(var(--er) / 0.3) !important;
+        box-shadow: 0 8px 32px hsl(var(--er) / 0.1) !important;
+        color: hsl(var(--erc)) !important;
+    }
+
+    /* Scroll to bottom button animation */
+    #scrollToBottomBtn button {
+        animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+
+        0%,
+        100% {
+            box-shadow: 0 0 5px rgba(var(--p), 0.5);
+        }
+
+        50% {
+            box-shadow: 0 0 20px rgba(var(--p), 0.8);
+        }
+    }
+
+    /* Input focus enhancement */
+    #messageInput:focus {
+        box-shadow: 0 0 0 3px rgba(var(--p), 0.2);
+        border-color: rgb(var(--p));
+    }
+
+    /* Button loading state improvements */
+    .btn-disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Copy feedback */
+    .copy-feedback {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 1000;
+    }
+
+    .copy-feedback.show {
+        opacity: 1;
+    }
+
+    /* Improved scroll smoothness */
+    .flex-1.overflow-y-auto {
+        scroll-behavior: smooth;
+        scroll-padding-bottom: 2rem;
+    }
+</style>
+<div class="h-screen flex flex-col">
+    <!-- Chat Messages Area -->
+    <div class="flex-1 overflow-y-auto">
+        <div id="chatMessages" class=" mx-12 p-4 space-y-6">
+        </div>
+    </div>
+
+    <!-- Suggestions Area -->
+    <div id="suggestionsArea" class="border-t p-4 hidden"
+        style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.2);">
+        <div class="max-w-full mx-auto px-4">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-sm text-base-content/70 flex items-center gap-2">
+                    <i class="bi bi-lightbulb"></i>
+                    Suggested Questions:
+                </p>
+                <div class="flex gap-1">
+                    <button class="btn btn-ghost btn-xs" id="prevSuggestion" onclick="scrollSuggestions(-1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-ghost btn-xs" id="nextSuggestion" onclick="scrollSuggestions(1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="overflow-x-auto scrollbar-hide" id="suggestionSlider" style="padding-right: 2rem;">
+                    <div class="flex gap-3 pb-2 pr-8" id="suggestionButtons"
+                        style="scroll-behavior: smooth; min-width: max-content;">
+                        <!-- Dynamic suggestion buttons will be added here -->
+                    </div>
+                </div>
+                <!-- Gradient fade effects -->
+                <div class="absolute left-0 top-0 bottom-0 w-8 pointer-events-none" id="leftFade"
+                    style="background: linear-gradient(to right, rgba(255, 255, 255, 0.15), transparent);"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-8 pointer-events-none" id="rightFade"
+                    style="background: linear-gradient(to left, rgba(255, 255, 255, 0.15), transparent);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Typing indicator -->
+    <div id="typingIndicator" class="hidden">
+        <!-- This will be populated dynamically in the chat messages area -->
+    </div>
+
+    <!-- Scroll to Bottom Button (Hidden by default) -->
+    <div id="scrollToBottomBtn" class="fixed bottom-20 right-6 z-50 hidden">
+        <button class="btn btn-primary btn-circle shadow-lg" onclick="scrollToBottom()" title="Scroll to bottom">
+            <i class="bi bi-arrow-down"></i>
+        </button>
+    </div>
+
+    <!-- Copy Feedback -->
+    <div id="copyFeedback" class="copy-feedback">
+        <i class="bi bi-check-circle mr-2"></i>
+        Copied to clipboard!
+    </div>
+
+    <!-- Chat Input -->
+    <div class="border-t border-base-300 bg-base-200/50 backdrop-blur-md p-4">
+        <div class="max-w-full mx-auto px-4">
+            <div class="flex gap-3 items-end chat-input-container">
+                <div class="flex-1">
+                    <input type="text" id="messageInput" class="input input-bordered w-full resize-none"
+                        placeholder="{% if has_accounts %}Ask about your balance, {{ banks.0 }}, or currency conversions...{% else %}Ask me about foreign exchange, banks, or financial services...{% endif %}"
+                        onkeypress="handleKeyPress(event)">
+                </div>
+                <button class="btn btn-ghost" type="button" onclick="loadSuggestions()" id="suggestionsButton"
+                    title="Show suggestions">
+                    <i class="bi bi-lightbulb"></i>
+                </button>
+                <button class="btn btn-primary" type="button" onclick="sendMessage()" id="sendButton">
+                    <i class="bi bi-send"></i>
+                </button>
+                <button class="btn btn-ghost" type="button" onclick="clearChat()" id="clearChatButton"
+                    title="Clear conversation">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+            <div class="flex items-center justify-center mt-2 text-xs text-base-content/60">
+                <span>
+                    {% if has_accounts %}
+                    Personalized for your {{ account_count }} account{{ account_count|pluralize }} • Try: "Show my
+                    balance" or "Give me insights" • 💡 Ctrl+← / Ctrl+→ to scroll suggestions
+                    {% else %}
+                    Ask about exchange rates, currency conversion, banking services, or financial advice • 💡 Use
+                    suggestions below
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+    let sessionId = localStorage.getItem('chat_session_id');
+    if (!sessionId) {
+        sessionId = generateSessionId();
+        localStorage.setItem('chat_session_id', sessionId);
+    }
+
+    function generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function clearSession() {
+        localStorage.removeItem('chat_session_id');
+        sessionId = generateSessionId();
+        localStorage.setItem('chat_session_id', sessionId);
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        const sendButton = document.getElementById('sendButton');
+        const suggestionsButton = document.getElementById('suggestionsButton');
+
+        if (!message) {
+            // Add a subtle shake animation to indicate empty message
+            input.classList.add('animate-pulse');
+            setTimeout(() => input.classList.remove('animate-pulse'), 500);
+            return;
+        }
+
+        // Add user message
+        addMessage('user', message);
+        input.value = '';
+
+        // Hide suggestions when user sends a message
+        hideSuggestions();
+
+        // Disable input and buttons with visual feedback
+        input.disabled = true;
+        sendButton.disabled = true;
+        suggestionsButton.disabled = true;
+
+        // Change button text/icon to show loading state
+        const originalSendContent = sendButton.innerHTML;
+        sendButton.innerHTML = '<span class="loading loading-spinner loading-sm"></span>';
+        sendButton.classList.add('btn-disabled');
+
+        // Add typing indicator as a chat message
+        addTypingIndicator();
+
+        // Make API call
+        fetch('{% url "ai_financial_assistant" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken,
+            },
+            body: `message=${encodeURIComponent(message)}&session_id=${encodeURIComponent(sessionId)}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Remove typing indicator
+                removeTypingIndicator();
+
+                // Add response message directly without typewriter effect
+                if (data.error) {
+                    addMessage('error', data.error);
+                } else {
+                    addMessage('bot', data.response);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                removeTypingIndicator();
+                addMessage('error', 'Sorry, I encountered an error. Please try again.', true);
+            })
+            .finally(() => {
+                // Restore buttons
+                input.disabled = false;
+                sendButton.disabled = false;
+                suggestionsButton.disabled = false;
+                sendButton.innerHTML = originalSendContent;
+                sendButton.classList.remove('btn-disabled');
+
+                // Focus input with slight delay for better UX
+                setTimeout(() => {
+                    input.focus();
+                    input.select(); // Select any remaining text
+                }, 100);
+            });
+    }
+
+    function addMessage(sender, text) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        if (sender === 'user') {
+            messageDiv.className = 'chat chat-end';
+            messageDiv.innerHTML = `
+                <div class="chat-image avatar">
+                    <div class="w-8 rounded-full">
+                        <div class="bg-secondary text-secondary-content rounded-full w-8 h-8 flex items-center justify-center">
+                            <i class="bi bi-person text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-bubble chat-bubble-secondary max-w-2xl">${escapeHtml(text)}</div>
+                <div class="chat-footer opacity-50 text-xs mt-1">${timestamp}</div>
+            `;
+        } else if (sender === 'bot') {
+            messageDiv.className = 'w-full mb-8 bot-message-container p-4';
+            messageDiv.innerHTML = `
+                <div class="flex items-start gap-4 w-full">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-primary text-primary-content rounded-full flex items-center justify-center">
+                            <i class="bi bi-robot text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xs text-base-content/60 mb-3 font-medium">AI Assistant • ${timestamp}</div>
+                        <div class="prose max-w-none markdown-content text-base-content">${formatBotMessage(text)}</div>
+                    </div>
+                </div>
+            `;
+        } else if (sender === 'error') {
+            messageDiv.className = 'chat chat-start';
+            messageDiv.innerHTML = `
+                <div class="chat-image avatar">
+                    <div class="w-8 rounded-full">
+                        <div class="bg-error text-error-content rounded-full w-8 h-8 flex items-center justify-center">
+                            <i class="bi bi-exclamation-triangle text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-bubble chat-bubble-error max-w-2xl">${escapeHtml(text)}</div>
+                <div class="chat-footer opacity-50 text-xs mt-1">${timestamp}</div>
+            `;
+        }
+
+        messagesContainer.appendChild(messageDiv);
+
+        // Add double-click to copy functionality for bot messages
+        if (sender === 'bot') {
+            const contentDiv = messageDiv.querySelector('.prose.markdown-content');
+            contentDiv.addEventListener('dblclick', () => {
+                copyToClipboard(text);
+            });
+            contentDiv.style.cursor = 'pointer';
+            contentDiv.title = 'Double-click to copy message';
+
+            // Apply syntax highlighting for bot messages
+            if (typeof hljs !== 'undefined') {
+                setTimeout(() => {
+                    const codeBlocks = messageDiv.querySelectorAll('pre code');
+                    codeBlocks.forEach(block => {
+                        hljs.highlightElement(block);
+                    });
+                }, 50);
+            }
+        }
+
+        // Auto scroll to new message for all message types - smoother with longer delay
+        setTimeout(() => {
+            scrollToBottom(true);
+        }, 50);
+
+        // Additional delayed scroll to ensure content is fully rendered
+        setTimeout(() => {
+            scrollToBottom(true);
+        }, 200);
+    }
+
+
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function scrollToBottom(smooth = true) {
+        const scrollContainer = document.querySelector('.flex-1.overflow-y-auto');
+        if (scrollContainer) {
+            if (smooth) {
+                // Use requestAnimationFrame for smoother scrolling
+                requestAnimationFrame(() => {
+                    scrollContainer.scrollTo({
+                        top: scrollContainer.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                });
+            } else {
+                scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            }
+        }
+    }
+
+    function addTypingIndicator() {
+        const messagesContainer = document.getElementById('chatMessages');
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typingMessage';
+        typingDiv.className = 'w-full mb-8 bot-message-container p-4';
+        typingDiv.style.opacity = '0';
+        typingDiv.style.transform = 'translateY(20px)';
+
+        typingDiv.innerHTML = `
+            <div class="flex items-start gap-4 w-full">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-primary text-primary-content rounded-full flex items-center justify-center relative">
+                        <i class="bi bi-robot text-sm"></i>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="loading loading-dots loading-xs text-primary-content opacity-70"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-xs text-base-content/60 mb-3 font-medium">AI Assistant</div>
+                    <div class="prose max-w-none text-base-content/60 italic">
+                        <span class="loading loading-dots loading-sm mr-2"></span>
+                        AI is thinking...
+                    </div>
+                </div>
+            </div>
+        `;
+
+        messagesContainer.appendChild(typingDiv);
+
+        // Animate entrance
+        setTimeout(() => {
+            typingDiv.style.transition = 'all 0.3s ease';
+            typingDiv.style.opacity = '1';
+            typingDiv.style.transform = 'translateY(0)';
+            // Auto scroll when typing indicator appears - multiple attempts for smoothness
+            scrollToBottom(true);
+            setTimeout(() => scrollToBottom(true), 100);
+        }, 50);
+    }
+
+    function removeTypingIndicator() {
+        const typingMessage = document.getElementById('typingMessage');
+        if (typingMessage) {
+            typingMessage.style.opacity = '0';
+            typingMessage.style.transform = 'translateY(-10px)';
+
+            setTimeout(() => {
+                if (typingMessage.parentNode) {
+                    typingMessage.parentNode.removeChild(typingMessage);
+                }
+            }, 300);
+        }
+    }
+
+    function formatBotMessage(text) {
+        try {
+            // Configure marked.js for better rendering
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                sanitize: false,
+                highlight: function (code, lang) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        try {
+                            return hljs.highlight(code, { language: lang }).value;
+                        } catch (__) { }
+                    }
+                    return hljs.highlightAuto(code).value;
+                }
+            });
+
+            // Parse markdown
+            let formatted = marked.parse(text);
+
+            // Wrap tables in scrollable containers
+            formatted = formatted.replace(
+                /<table([^>]*)>/g, 
+                '<div class="table-container"><table$1>'
+            );
+            formatted = formatted.replace(/<\/table>/g, '</table></div>');
+
+            // Enhanced financial data formatting
+            formatted = formatted.replace(/([A-Z]{3})\/([A-Z]{3})/g, '<strong>$1/$2</strong>');
+            formatted = formatted.replace(/(\d+(?:\.\d+)?)\s*([A-Z]{3})\b/g, '<strong>$1 $2</strong>');
+            
+            // Format percentages
+            formatted = formatted.replace(/(\d+(?:\.\d+)?)\s*%/g, '<strong>$1%</strong>');
+            
+            // Format large numbers with commas
+            formatted = formatted.replace(/\b(\d{1,3}(?:,\d{3})+)\b/g, '<strong>$1</strong>');
+            
+            // Format decimal numbers (rates, prices)
+            formatted = formatted.replace(/\b(\d+\.\d{2,})\b/g, '<strong>$1</strong>');
+
+            return formatted;
+        } catch (error) {
+            console.error('Markdown parsing error:', error);
+            // Fallback to basic formatting
+            let formatted = escapeHtml(text).replace(/\n/g, '<br>');
+            formatted = formatted.replace(/([A-Z]{3})\/([A-Z]{3})/g, '<strong>$1/$2</strong>');
+            formatted = formatted.replace(/(\d+(?:\.\d+)?)\s*([A-Z]{3})/g, '<strong>$1 $2</strong>');
+            return formatted;
+        }
+    }
+
+    function loadSuggestions() {
+        const suggestionsArea = document.getElementById('suggestionsArea');
+        const suggestionButtons = document.getElementById('suggestionButtons');
+        const suggestionsButton = document.getElementById('suggestionsButton');
+
+        if (suggestionsArea.classList.contains('hidden')) {
+            // Show loading state
+            suggestionsButton.innerHTML = '<span class="loading loading-spinner loading-sm"></span>';
+            suggestionsButton.disabled = true;
+
+            fetch('{% url "get_ai_suggestions" %}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.suggestions) {
+                        suggestionButtons.innerHTML = '';
+                        data.suggestions.forEach((suggestion, index) => {
+                            const button = document.createElement('button');
+                            button.className = 'btn btn-outline btn-sm flex-shrink-0 whitespace-nowrap';
+                            button.textContent = suggestion;
+                            button.style.opacity = '0';
+                            button.style.transform = 'translateY(10px)';
+                            button.onclick = () => {
+                                document.getElementById('messageInput').value = suggestion;
+                                hideSuggestions();
+                                document.getElementById('messageInput').focus();
+                            };
+                            suggestionButtons.appendChild(button);
+
+                            // Stagger animation for each button
+                            setTimeout(() => {
+                                button.style.transition = 'all 0.3s ease';
+                                button.style.opacity = '1';
+                                button.style.transform = 'translateY(0)';
+                            }, index * 50);
+                        });
+
+                        // Show suggestions with animation
+                        suggestionsArea.classList.remove('hidden');
+                        suggestionsArea.style.opacity = '0';
+                        suggestionsArea.style.transform = 'translateY(10px)';
+
+                        // Trigger animation
+                        requestAnimationFrame(() => {
+                            suggestionsArea.style.transition = 'all 0.3s ease';
+                            suggestionsArea.style.opacity = '1';
+                            suggestionsArea.style.transform = 'translateY(0)';
+                        });
+
+                        updateScrollButtons();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading suggestions:', error);
+                    // Show error state briefly
+                    suggestionsButton.innerHTML = '<i class="bi bi-exclamation-triangle"></i>';
+                    setTimeout(() => {
+                        suggestionsButton.innerHTML = '<i class="bi bi-lightbulb"></i>';
+                    }, 2000);
+                })
+                .finally(() => {
+                    suggestionsButton.disabled = false;
+                    if (suggestionsButton.innerHTML.includes('loading')) {
+                        suggestionsButton.innerHTML = '<i class="bi bi-lightbulb"></i>';
+                    }
+                });
+        } else {
+            hideSuggestions();
+        }
+    }
+
+    function scrollSuggestions(direction) {
+        const slider = document.getElementById('suggestionSlider');
+        const scrollAmount = 200; // pixels to scroll
+
+        slider.scrollBy({
+            left: direction * scrollAmount,
+            behavior: 'smooth'
+        });
+
+        // Update scroll buttons after scrolling
+        setTimeout(updateScrollButtons, 300);
+    }
+
+    function updateScrollButtons() {
+        const slider = document.getElementById('suggestionSlider');
+        const prevBtn = document.getElementById('prevSuggestion');
+        const nextBtn = document.getElementById('nextSuggestion');
+
+        if (slider) {
+            const isAtStart = slider.scrollLeft <= 0;
+            const isAtEnd = slider.scrollLeft >= (slider.scrollWidth - slider.clientWidth);
+
+            prevBtn.disabled = isAtStart;
+            nextBtn.disabled = isAtEnd;
+
+            // Update button opacity
+            prevBtn.style.opacity = isAtStart ? '0.3' : '1';
+            nextBtn.style.opacity = isAtEnd ? '0.3' : '1';
+        }
+    }
+
+    // Add scroll event listener to update buttons when user scrolls manually
+    document.addEventListener('DOMContentLoaded', function () {
+        const slider = document.getElementById('suggestionSlider');
+        if (slider) {
+            slider.addEventListener('scroll', updateScrollButtons);
+        }
+    });
+
+    function handleKeyPress(event) {
+        const input = document.getElementById('messageInput');
+
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        } else if (event.key === 'ArrowUp' && event.ctrlKey) {
+            // Ctrl + Up Arrow to scroll to top of chat
+            event.preventDefault();
+            document.getElementById('chatMessages').scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        } else if (event.key === 'ArrowDown' && event.ctrlKey) {
+            // Ctrl + Down Arrow to scroll to bottom of chat
+            event.preventDefault();
+            scrollToBottom();
+        } else if (event.key === 'ArrowLeft' && event.ctrlKey) {
+            // Ctrl + Left Arrow to scroll suggestions left
+            event.preventDefault();
+            scrollSuggestions(-1);
+        } else if (event.key === 'ArrowRight' && event.ctrlKey) {
+            // Ctrl + Right Arrow to scroll suggestions right
+            event.preventDefault();
+            scrollSuggestions(1);
+        } else if (event.key === 'Escape') {
+            // Escape to hide suggestions or clear input
+            event.preventDefault();
+            const suggestionsArea = document.getElementById('suggestionsArea');
+            if (!suggestionsArea.classList.contains('hidden')) {
+                hideSuggestions();
+            } else if (input.value.trim()) {
+                input.value = '';
+                input.focus();
+            }
+        } else if (event.key === 'Tab') {
+            // Tab to show/hide suggestions
+            event.preventDefault();
+            loadSuggestions();
+        }
+
+        // Auto-resize input as user types (if needed for longer messages)
+        autoResizeInput(input);
+    }
+
+    function hideSuggestions() {
+        const suggestionsArea = document.getElementById('suggestionsArea');
+        suggestionsArea.style.opacity = '0';
+        suggestionsArea.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            suggestionsArea.classList.add('hidden');
+            suggestionsArea.style.removeProperty('opacity');
+            suggestionsArea.style.removeProperty('transform');
+            suggestionsArea.style.removeProperty('transition');
+        }, 300);
+    }
+
+    function autoResizeInput(input) {
+        // Simple auto-resize for better UX with longer messages
+        input.style.height = 'auto';
+        if (input.scrollHeight > input.clientHeight) {
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+        }
+    }
+
+    function clearChat() {
+        const messagesContainer = document.getElementById('chatMessages');
+        messagesContainer.innerHTML = '';
+        clearSession();
+
+        // Show suggestions when chat is cleared
+        setTimeout(() => {
+            showSuggestionsIfEmpty();
+        }, 300);
+    }
+
+    function showSuggestionsIfEmpty() {
+        const messagesContainer = document.getElementById('chatMessages');
+        const suggestionsArea = document.getElementById('suggestionsArea');
+
+        // Check if there are any messages (excluding typing indicator)
+        const messages = messagesContainer.children;
+        let hasRealMessages = false;
+
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i].id !== 'typingMessage') {
+                hasRealMessages = true;
+                break;
+            }
+        }
+
+        // Show suggestions if there are no real messages
+        if (!hasRealMessages && suggestionsArea.classList.contains('hidden')) {
+            setTimeout(() => {
+                loadSuggestions();
+            }, 500);
+        }
+    }
+
+    function getPersonalizedWelcome() {
+        document.getElementById('typingIndicator').classList.remove('hidden');
+
+        fetch('{% url "get_personalized_welcome" %}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('typingIndicator').classList.add('hidden');
+                if (data.error) {
+                    addMessage('error', data.error);
+                } else {
+                    addMessage('bot', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('typingIndicator').classList.add('hidden');
+                addMessage('error', 'Sorry, I encountered an error getting your personalized welcome.');
+            });
+    }
+
+    function testUserData() {
+        document.getElementById('typingIndicator').classList.remove('hidden');
+
+        fetch('{% url "test_user_data" %}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('typingIndicator').classList.add('hidden');
+                if (data.error) {
+                    addMessage('error', data.error);
+                } else {
+                    let debugMessage = `🐛 Debug Information:\n\n`;
+                    debugMessage += `User ID: ${data.user_id}\n`;
+                    debugMessage += `User Name: ${data.user_name}\n`;
+                    debugMessage += `Full Name: ${data.user_full_name}\n\n`;
+                    debugMessage += `Profile Data:\n${data.profile_data}\n\n`;
+                    debugMessage += `Greeting Data:\n${data.greeting_data}`;
+                    addMessage('bot', debugMessage);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('typingIndicator').classList.add('hidden');
+                addMessage('error', 'Sorry, I encountered an error testing user data.');
+            });
+    }
+
+    // Initialize markdown and syntax highlighting
+    function initializeMarkdown() {
+        // Configure marked.js globally
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                sanitize: false,
+                highlight: function (code, lang) {
+                    if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
+                        try {
+                            return hljs.highlight(code, { language: lang }).value;
+                        } catch (__) { }
+                    }
+                    return typeof hljs !== 'undefined' ? hljs.highlightAuto(code).value : code;
+                }
+            });
+        }
+
+        // Initialize highlight.js
+        if (typeof hljs !== 'undefined') {
+            hljs.highlightAll();
+        }
+    }
+
+    // Scroll detection for showing/hiding scroll to bottom button
+    function handleScroll() {
+        const scrollContainer = document.querySelector('.flex-1.overflow-y-auto');
+        const scrollToBottomBtn = document.getElementById('scrollToBottomBtn');
+
+        if (scrollContainer) {
+            const isNearBottom = scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 100;
+
+            if (isNearBottom) {
+                scrollToBottomBtn.classList.add('hidden');
+            } else {
+                scrollToBottomBtn.classList.remove('hidden');
+            }
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeMarkdown();
+
+        // Set up scroll listener
+        const scrollContainer = document.querySelector('.flex-1.overflow-y-auto');
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', handleScroll);
+        }
+
+        // Focus input
+        document.getElementById('messageInput').focus();
+
+
+
+        // Show suggestions immediately when chat is empty
+        showSuggestionsIfEmpty();
+
+        // Add helpful tooltips and keyboard shortcuts info
+        addKeyboardShortcutsInfo();
+    });
+
+    function addKeyboardShortcutsInfo() {
+        // Update the help text to include keyboard shortcuts
+        const helpText = document.querySelector('.chat-input-container + div span');
+        if (helpText) {
+            const currentText = helpText.textContent;
+            const shortcutsText = currentText + ' • 💡 Shortcuts: Tab (suggestions), Ctrl+↑/↓ (scroll), Esc (clear/hide), Double-click message to copy';
+            helpText.textContent = shortcutsText;
+        }
+    }
+
+    function copyToClipboard(text) {
+        // Create a temporary textarea to copy text
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+
+        try {
+            textarea.select();
+            document.execCommand('copy');
+            showCopyFeedback();
+        } catch (err) {
+            console.error('Failed to copy text:', err);
+            // Fallback for modern browsers
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyFeedback();
+                }).catch(err => {
+                    console.error('Clipboard API failed:', err);
+                });
+            }
+        } finally {
+            document.body.removeChild(textarea);
+        }
+    }
+
+    function showCopyFeedback() {
+        const feedback = document.getElementById('copyFeedback');
+        feedback.classList.add('show');
+
+        setTimeout(() => {
+            feedback.classList.remove('show');
+        }, 2000);
+    }
+</script>
+{% endblock %}

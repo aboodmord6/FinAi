@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Products{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto overflow-auto p-4">
+        <h1 class="text-center text-4xl font-bold mb-8">Financial Institution Products</h1>
+
+    <!-- Search and Filter Section -->
+        <div class="card bg-base-200 shadow-xl mb-8">
+            <div class="card-body">
+                <div class="flex flex-wrap gap-4 items-end">
+                <!-- Search Input -->
+                    <div class="form-control flex-1 min-w-64">
+                        <label class="label">
+                            <span class="label-text font-medium">Search Products</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="text" id="searchInput" placeholder="Search by product name..."
+                                   class="input input-bordered flex-1" />
+                            <button class="btn btn-primary">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                <!-- Category Filter -->
+                    <div class="form-control w-48">
+                        <label class="label">
+                            <span class="label-text font-medium">Category</span>
+                        </label>
+                        <select id="categoryFilter" class="select select-bordered">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                                <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                <!-- Institution Filter -->
+                    <div class="form-control w-48">
+                        <label class="label">
+                            <span class="label-text font-medium">Institution</span>
+                        </label>
+                        <select id="institutionFilter" class="select select-bordered">
+                            <option value="">All Institutions</option>
+                            {% for institution in institutions %}
+                                <option value="{{ institution.name }}">{{ institution.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                <!-- Clear Filters -->
+                    <div class="form-control">
+                        <button id="clearFilters" class="btn btn-ghost">
+                            <i class="bi bi-x-circle"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Products Results -->
+        <div id="productsContainer">
+            {% for entry in institutions_products %}
+                <div class="mb-12 institution-group" data-institution="{{ entry.institution.name }}">
+            <!-- Section header -->
+                    <div class="flex items-center mb-6">
+                        <h3 class="text-2xl font-bold">{{ entry.institution.name }}</h3>
+                        <div class="mx-4 text-base-content/50">•</div>
+                        <span class="text-xl text-base-content/70">Offers and Services</span>
+                    </div>
+
+            <!-- Products grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                        {% for product in entry.products %}
+                            <div class="product-card" data-product-name="{{ product.commercial_name|lower }}"
+                                 data-category="{{ product.category.name }}" data-institution="{{ entry.institution.name }}">
+                                <a href="#" class="block rounded-xl overflow-hidden shadow bg-base-100">
+                        <!-- overlay removed; content is always visible -->
+                                    <div class="p-6 h-60 flex flex-col">
+                            <!-- Category badge -->
+                                        <div class="mb-2">
+                                            <span class="badge badge-neutral badge-outline badge-sm">
+                                                {{ product.category.name }}
+                                            </span>
+                                        </div>
+
+                            <!-- Product name -->
+                                        <h6 class="text-lg font-bold text-base-content mb-2 line-clamp-2">
+                                            {{ product.commercial_name }}
+                                        </h6>
+
+                            <!-- Description -->
+                                        <p class="text-sm text-base-content/70 line-clamp-3 flex-1">
+                                            {% if product.description %}
+                                                {{ product.description|truncatechars:120 }}
+                                            {% else %}
+                                                <span class="italic text-base-content/50">No description available.</span>
+                                            {% endif %}
+                                        </p>
+
+                            <!-- Action button -->
+                                        <div class="mt-auto pt-4">
+                                            <button class="btn btn-primary btn-sm w-full">
+                                                <i class="bi bi-info-circle"></i>
+                                                Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert alert-info shadow-lg">
+                    <div class="flex flex-col items-center text-center">
+                        <i class="bi bi-grid-3x3-gap text-4xl mb-4"></i>
+                        <h4 class="text-xl font-bold">No products found</h4>
+                        <p>Please add financial products to the database.</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    <!-- No Results Message -->
+        <div id="noResults" class="hidden">
+            <div class="alert alert-warning shadow-lg">
+                <div class="flex flex-col items-center text-center">
+                    <i class="bi bi-search text-4xl mb-4"></i>
+                    <h4 class="text-xl font-bold">No products match your search</h4>
+                    <p>Try adjusting your search criteria or clearing filters.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const institutionFilter = document.getElementById('institutionFilter');
+            const clearFilters = document.getElementById('clearFilters');
+            const productsContainer = document.getElementById('productsContainer');
+            const noResults = document.getElementById('noResults');
+
+            function filterProducts() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedCategory = categoryFilter.value;
+                const selectedInstitution = institutionFilter.value;
+
+                const institutionGroups = document.querySelectorAll('.institution-group');
+                let visibleProductCount = 0;
+
+                institutionGroups.forEach(group => {
+                    const institutionName = group.dataset.institution;
+                    const productCards = group.querySelectorAll('.product-card');
+                    let visibleCardsInGroup = 0;
+
+                    productCards.forEach(card => {
+                        const productName = card.dataset.productName;
+                        const category = card.dataset.category;
+                        const institution = card.dataset.institution;
+
+                        const matchesSearch = searchTerm === '' || productName.includes(searchTerm);
+                        const matchesCategory = selectedCategory === '' || category === selectedCategory;
+                        const matchesInstitution = selectedInstitution === '' || institution === selectedInstitution;
+
+                        if (matchesSearch && matchesCategory && matchesInstitution) {
+                            card.style.display = 'block';
+                            visibleCardsInGroup++;
+                            visibleProductCount++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                // Hide institution group if no visible products
+                    if (visibleCardsInGroup === 0) {
+                        group.style.display = 'none';
+                    } else {
+                        group.style.display = 'block';
+                    }
+                });
+
+            // Show/hide no results message
+                if (visibleProductCount === 0) {
+                    productsContainer.style.display = 'none';
+                    noResults.classList.remove('hidden');
+                } else {
+                    productsContainer.style.display = 'block';
+                    noResults.classList.add('hidden');
+                }
+            }
+
+            function clearAllFilters() {
+                searchInput.value = '';
+                categoryFilter.value = '';
+                institutionFilter.value = '';
+                filterProducts();
+            }
+
+        // Event listeners
+            searchInput.addEventListener('input', filterProducts);
+            categoryFilter.addEventListener('change', filterProducts);
+            institutionFilter.addEventListener('change', filterProducts);
+            clearFilters.addEventListener('click', clearAllFilters);
+        });
+    </script>
+{% endblock %}
