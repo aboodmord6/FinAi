@@ -174,8 +174,6 @@ python manage.py populate_db
 ### Environment Variables
 Create a `.env` file in the `fintech` directory:
 ```env
-SECRET_KEY=your-secret-key
-DEBUG=True
 GOOGLE_API_KEY=your-google-ai-key
 ```
 
