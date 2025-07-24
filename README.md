@@ -28,7 +28,6 @@ A comprehensive Django-based fintech platform that provides financial product co
 - Context-aware responses
 
 ![Chat Interface](images/chatconfrsation.png)
-![Advanced Chat](images/chatconfrsation.png3.png)
 ![Chat Analytics](images/chatconfrsation.png4.png)
 
 ### 🔐 **Secure Authentication**
