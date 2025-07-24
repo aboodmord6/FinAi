@@ -179,34 +179,6 @@ DEBUG=True
 GOOGLE_API_KEY=your-google-ai-key
 ```
 
-## 🚀 Deployment
-
-### Production Checklist
-- [ ] Set `DEBUG=False`
-- [ ] Configure production database (PostgreSQL recommended)
-- [ ] Set up static file serving
-- [ ] Configure HTTPS
-- [ ] Set environment variables
-- [ ] Run `python manage.py collectstatic`
-
-
-## 📊 API Endpoints
-
-### Authentication
-- `POST /auth/login/` - User login
-- `POST /auth/signup/` - User registration
-- `POST /auth/otp/` - OTP verification
-
-### Financial Data
-- `GET /api/institutions/` - List financial institutions
-- `GET /api/products/` - List financial products
-- `GET /api/rates/` - Get exchange rates
-- `GET /api/fees/` - Get fee structures
-
-### Chat API
-- `POST /api/chat/` - Send message to AI assistant
-- `GET /api/chat/history/` - Get conversation history
-
 ## 🤝 Contributing
 
 1. Fork the repository
